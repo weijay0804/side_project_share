@@ -2,7 +2,7 @@
 
 ## 使用者 endpoint
 
-- `/user/`
+- `/users/`
   
   (POST)  
   新增使用者
@@ -14,7 +14,7 @@
   }
   ```
 
-- `/user/<user_id>/profile/`
+- `/users/<user_id>/profile/`
   
   (GET)  
   取得使用者個人資料
@@ -52,7 +52,7 @@
   } 
   ```
 
-- `/user/<user_id>/profile/simple`  
+- `/users/<user_id>/profile/simple`  
   
   (GET)  
   取得使用者的部分個人資料
@@ -66,7 +66,7 @@
 
 # project endpoin
 
-- `/project/`
+- `/projects/`
   
   (GET)  
   取得所有專案計畫基本資料  
@@ -114,7 +114,7 @@
   }
   ```
 
-- `/project/me`
+- `/projects/me`
   
   (GET)  
   **(authenticate)**  
@@ -145,7 +145,7 @@
   }
   ```
 
-- `/project/<project_id>/`
+- `/projects/<project_id>/`
   
   (GET)  
   取得專案計畫詳細資料
