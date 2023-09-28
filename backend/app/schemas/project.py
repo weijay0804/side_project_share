@@ -8,7 +8,7 @@ from .user import UserSimple
 
 class ProjectBase(BaseModel):
     title: str
-    max_number_number: int
+    max_member_number: Optional[int] = None
 
 
 class ProjectInDBBase(ProjectBase):
@@ -22,8 +22,8 @@ class ProjectInBD(ProjectInDBBase):
     project_desc: str = None
     project_image_url: str = None
 
-    class Config:
-        orm_mode = True
+    class ConfigDict:
+        from_attributes = True
         extra = "ignore"
 
 
@@ -34,9 +34,9 @@ class ProjectSimple(ProjectInDBBase):
 
 
 class ProjectCreate(ProjectBase):
-    project_intro: Optional[str] = None
-    project_desc: Optional[str] = None
-    project_image_url: Optional[str] = None
+    intro: Optional[str] = None
+    desc: Optional[str] = None
+    image_url: Optional[str] = None
     topic_id_list: Optional[List[int]] = None
 
 
