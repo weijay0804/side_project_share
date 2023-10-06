@@ -2,8 +2,11 @@ from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, SmallInteger, Boolean, Text, DateTime
 from sqlalchemy.orm import relationship
+from passlib.context import CryptContext
 
 from app.db.base_class import Base
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class User(Base):
@@ -35,5 +38,8 @@ class User(Base):
         raise AttributeError('Password is not a readablb attribute.')
 
     @password.setter
-    def password(self, password: str):
-        self.password_hash = password
+    def password(self, password: str) -> None:
+        self.password_hash = pwd_context.hash(password)
+
+    def verify_password(self, password: str) -> bool:
+        return pwd_context.verify(password, self.password_hash)
