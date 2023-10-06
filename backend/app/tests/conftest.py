@@ -9,7 +9,7 @@ from app.main import app
 from app.db.base import Base
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def db() -> Generator:
     engine = create_engine("sqlite:///", connect_args={"check_same_thread": False})
 
@@ -20,7 +20,6 @@ def db() -> Generator:
     yield SessionLocal()
 
     engine.clear_compiled_cache()
-    engine.dispose()
     Base.metadata.drop_all(bind=engine)
 
 
