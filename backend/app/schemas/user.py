@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -15,14 +15,11 @@ class UserCreaet(UserBase):
 
 
 class UserInDBBase(UserBase):
-    user_id: Optional[int] = None
-
-    class ConfigDict:
-        from_attributes = True
-        extra = "ignore"
+    id: Optional[int] = None
 
 
 class UserInDB(UserInDBBase):
+    avatar_url: Optional[str] = None
     city: Optional[str] = None
     age: Optional[int] = None
     gender: Optional[str] = None
@@ -31,7 +28,11 @@ class UserInDB(UserInDBBase):
     is_github_public: bool = None
     discord: Optional[str] = None
     is_discord_public: bool = None
-    skill: Optional[List[str]] = None
+    skill: Optional[str] = None
+
+    class ConfigDict:
+        from_attributes = True
+        extra = "ignore"
 
 
 class UserSimple(BaseModel):
@@ -53,4 +54,4 @@ class UserUpdate(BaseModel):
     is_github_public: bool = None
     discord: Optional[str] = None
     is_discord_public: bool = None
-    skill: Optional[List[str]] = None
+    skill: Optional[str] = None

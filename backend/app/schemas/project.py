@@ -12,15 +12,15 @@ class ProjectBase(BaseModel):
 
 
 class ProjectInDBBase(ProjectBase):
-    project_id: Optional[int] = None
+    id: Optional[int] = None
     current_member_number: int = None
     status: str = None
-    project_intro: str = None
+    intro: str = None
 
 
 class ProjectInBD(ProjectInDBBase):
-    project_desc: str = None
-    project_image_url: str = None
+    desc: str = None
+    image_url: str = None
 
     class ConfigDict:
         from_attributes = True
