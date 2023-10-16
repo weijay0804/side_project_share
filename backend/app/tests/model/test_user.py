@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from fastapi.encoders import jsonable_encoder
 
 from app.models.user import User
+from app.core.security import get_password_hash
 from app.tests.utils.user import create_random_user_data
 
 
@@ -12,7 +13,7 @@ def test_create_user(db: Session) -> None:
 
     user_in = create_random_user_data()
 
-    user = User(**(jsonable_encoder(user_in)), password="test")
+    user = User(**(jsonable_encoder(user_in)), password_hash=get_password_hash("test"))
 
     db.add(user)
     db.commit()

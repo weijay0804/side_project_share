@@ -32,14 +32,3 @@ class User(Base):
     projects = relationship(
         "Project", back_populates="user", cascade="delete, delete-orphan", lazy="dynamic"
     )
-
-    @property
-    def password(self):
-        raise AttributeError('Password is not a readablb attribute.')
-
-    @password.setter
-    def password(self, password: str) -> None:
-        self.password_hash = pwd_context.hash(password)
-
-    def verify_password(self, password: str) -> bool:
-        return pwd_context.verify(password, self.password_hash)
