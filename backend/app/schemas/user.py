@@ -38,9 +38,9 @@ class UserInDB(UserInDBBase):
 
 
 class UserSimple(BaseModel):
-    user_id: int
+    id: int
     username: str
-    avatar_url: str
+    avatar_url: Optional[str] = None
 
 
 class User(UserInDB):

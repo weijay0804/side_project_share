@@ -1,10 +1,12 @@
 import random
+from typing import Dict, Any
 
 from fastapi.encoders import jsonable_encoder
 
 from app.models.user import User
 from app.schemas.user import UserInDB
 from app.tests.utils.utils import FakeData
+from app.core.security import get_password_hash
 
 fake = FakeData("zh_TW")
 
@@ -38,7 +40,18 @@ def create_random_user(is_password: bool = True) -> User:
 
     user = User(
         **(jsonable_encoder(create_random_user_data())),
-        password=fake.random_string() if is_password else None
+        password_hash=get_password_hash(fake.random_string()) if is_password else None
     )
 
     return user
+
+
+def create_random_user_json(is_password: bool = True) -> Dict[str, Any]:
+    data = create_random_user_data()
+
+    json_data = data.model_dump()
+
+    if is_password:
+        json_data["password"] = fake.random_string()
+
+    return json_data

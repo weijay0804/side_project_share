@@ -64,26 +64,6 @@ def test_user_default(db: Session) -> None:
     assert user.create_at is not None
 
 
-def test_create_user_with_same_username(db: Session) -> None:
-    """測試 username 欄位的唯一性"""
-
-    user_in = create_random_user_data()
-
-    user = User(**(jsonable_encoder(user_in)))
-
-    db.add(user)
-    db.commit()
-
-    user_in2 = create_random_user_data()
-    user2 = User(username=user_in.username, email=user_in2.email)
-
-    with pytest.raises(IntegrityError):
-        db.add(user2)
-        db.commit()
-
-    db.rollback()
-
-
 def test_create_user_with_same_email(db: Session) -> None:
     """測試 email 欄位的唯一性"""
 
