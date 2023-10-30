@@ -3,17 +3,12 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.tests.utils.user import create_random_user_json, create_random_user
-from app.tests.utils.utils import FakeData
-from app.schemas.user import UserCreaet
+from app.tests.utils.user import create_random_user_create_obj
 from app.crud import user as user_crud
 
 
-fake = FakeData("zh-TW")
-
-
 def test_create_user(client: TestClient) -> None:
-    user = create_random_user_json()
+    user = create_random_user_create_obj()
 
     data = jsonable_encoder(user)
 
@@ -23,10 +18,9 @@ def test_create_user(client: TestClient) -> None:
 
 
 def test_create_user_with_exist_email(client: TestClient, db: Session) -> None:
-    user = create_random_user()
+    user_in = create_random_user_create_obj()
 
-    db.add(user)
-    db.commit()
+    user = user_crud.create(db, obj_in=user_in)
 
     data = {"username": user.username, "email": user.email, "password": "test"}
 
@@ -36,11 +30,7 @@ def test_create_user_with_exist_email(client: TestClient, db: Session) -> None:
 
 
 def test_get_user_profile(client: TestClient, db: Session) -> None:
-    username = fake.random_username()
-    email = fake.random_email()
-    password = fake.random_string()
-
-    user_in = UserCreaet(username=username, email=email, password=password)
+    user_in = create_random_user_create_obj()
 
     user = user_crud.create(db, obj_in=user_in)
 
@@ -60,11 +50,7 @@ def test_get_user_profile_with_not_exist_id(client: TestClient) -> None:
 
 
 def test_update_user(client: TestClient, db: Session) -> None:
-    username = fake.random_username()
-    email = fake.random_email()
-    password = fake.random_string()
-
-    user_in = UserCreaet(username=username, email=email, password=password)
+    user_in = create_random_user_create_obj()
     user = user_crud.create(db, obj_in=user_in)
 
     update_data = {"username": "test"}
@@ -79,11 +65,7 @@ def test_update_user(client: TestClient, db: Session) -> None:
 
 
 def test_update_user_with_exist_email(client: TestClient, db: Session) -> None:
-    username = fake.random_username()
-    email = fake.random_email()
-    password = fake.random_string()
-
-    user_in = UserCreaet(username=username, email=email, password=password)
+    user_in = create_random_user_create_obj()
     user = user_crud.create(db, obj_in=user_in)
 
     update_data = {"email": user.email}
@@ -100,11 +82,7 @@ def test_update_user_with_not_exist_id(client: TestClient) -> None:
 
 
 def test_get_user_proflie_simple(client: TestClient, db: Session) -> None:
-    username = fake.random_username()
-    email = fake.random_email()
-    password = fake.random_string()
-
-    user_in = UserCreaet(username=username, email=email, password=password)
+    user_in = create_random_user_create_obj()
     user = user_crud.create(db, obj_in=user_in)
 
     r = client.get(f"{settings.API_STR}/users/{user.id}/profile/simple")

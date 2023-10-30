@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from fastapi.encoders import jsonable_encoder
 
 from app.models.project import Project
-from app.tests.utils.project import create_random_project_data, create_random_project
+from app.tests.utils.project import create_random_project_data
 
 
 def test_create_project(db: Session) -> None:

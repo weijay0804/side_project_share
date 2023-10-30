@@ -8,7 +8,7 @@ from fastapi.encoders import jsonable_encoder
 from app.models.user import User
 from app.models.project import Project
 from app.tests.utils.user import create_random_user_data
-from app.tests.utils.project import create_random_project
+from app.tests.utils.project import create_random_project_data
 
 
 @pytest.fixture(scope="class")
@@ -41,7 +41,8 @@ class TestUserProjectRelation:
     def test_create(self, db: Session, db_user: User) -> None:
         """測試專案與使用者之間的關聯"""
 
-        project = create_random_project(db_user.id)
+        project_data = create_random_project_data()
+        project = Project(**jsonable_encoder(project_data), host_user_id=db_user.id)
 
         db.add(project)
         db.commit()
@@ -56,8 +57,11 @@ class TestUserProjectRelation:
     def test_create_many(self, db: Session, db_user: User) -> None:
         """測試多個專案與使用者之間的關聯"""
 
-        project1 = create_random_project(host_user_id=db_user.id)
-        project2 = create_random_project(host_user_id=db_user.id)
+        project1_data = create_random_project_data()
+        project2_data = create_random_project_data()
+
+        project1 = Project(**jsonable_encoder(project1_data), host_user_id=db_user.id)
+        project2 = Project(**jsonable_encoder(project2_data), host_user_id=db_user.id)
 
         db.add_all([project1, project2])
         db.commit()
@@ -71,7 +75,8 @@ class TestUserProjectRelation:
     def test_delete_project(self, db: Session, db_user: User) -> None:
         """測試刪除專案時不應該刪除使用者"""
 
-        project = create_random_project(host_user_id=db_user.id)
+        project_data = create_random_project_data()
+        project = Project(**jsonable_encoder(project_data), host_user_id=db_user.id)
 
         db.add(project)
         db.commit()
@@ -101,8 +106,11 @@ class TestUserProjectRelation:
         db.commit()
         db.refresh(user)
 
-        project1 = create_random_project(host_user_id=user.id)
-        project2 = create_random_project(host_user_id=user.id)
+        project1_data = create_random_project_data()
+        project2_data = create_random_project_data()
+
+        project1 = Project(**jsonable_encoder(project1_data), host_user_id=user.id)
+        project2 = Project(**jsonable_encoder(project2_data), host_user_id=user.id)
 
         db.add_all([project1, project2])
         db.commit()

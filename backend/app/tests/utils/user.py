@@ -1,14 +1,7 @@
 import random
-from typing import Dict, Any
 
-from fastapi.encoders import jsonable_encoder
-
-from app.models.user import User
-from app.schemas.user import UserInDB
-from app.tests.utils.utils import FakeData
-from app.core.security import get_password_hash
-
-fake = FakeData("zh_TW")
+from app.schemas.user import UserInDB, UserCreaet
+from app.tests.utils.utils import fake_data
 
 
 def create_random_user_data() -> UserInDB:
@@ -18,40 +11,30 @@ def create_random_user_data() -> UserInDB:
         return random.choice([True, False])
 
     user_in = UserInDB(
-        username=fake.random_username(),
-        email=fake.random_email(),
-        avatar_url=fake.random_url(),
-        city=fake.random_city(),
-        age=fake.random_int(10, 60),
+        username=fake_data.random_username(),
+        email=fake_data.random_email(),
+        avatar_url=fake_data.random_url(),
+        city=fake_data.random_city(),
+        age=fake_data.random_int(10, 60),
         gender=random.choice(["male", "female", "sex"]),
         is_email_public=random_true_false(),
-        github=fake.random_email(),
+        github=fake_data.random_email(),
         is_github_public=random_true_false(),
-        discord=fake.random_email(),
+        discord=fake_data.random_email(),
         is_discord_public=random_true_false(),
-        skill=fake.random_lorem(),
+        skill=fake_data.random_lorem(),
     )
 
     return user_in
 
 
-def create_random_user(is_password: bool = True) -> User:
-    """建立測試的 User model 實例"""
+def create_random_user_create_obj() -> UserCreaet:
+    """建立測試的 UserCreate model 實例"""
 
-    user = User(
-        **(jsonable_encoder(create_random_user_data())),
-        password_hash=get_password_hash(fake.random_string()) if is_password else None
-    )
+    username = fake_data.random_username()
+    email = fake_data.random_email()
+    password = fake_data.random_string()
 
-    return user
+    user_create = UserCreaet(username=username, email=email, password=password)
 
-
-def create_random_user_json(is_password: bool = True) -> Dict[str, Any]:
-    data = create_random_user_data()
-
-    json_data = data.model_dump()
-
-    if is_password:
-        json_data["password"] = fake.random_string()
-
-    return json_data
+    return user_create
