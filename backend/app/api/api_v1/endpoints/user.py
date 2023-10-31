@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from app import schemas
 from app.api import deps
-from app.crud import user
+from app import crud
 
 
 router = APIRouter()
@@ -21,12 +21,12 @@ router = APIRouter()
 def create_user(item: schemas.UserCreaet, db: Session = Depends(deps.get_db)):
     """新增使用者"""
 
-    user_by_email = user.get_by_email(db, email=item.email)
+    user_by_email = crud.user.get_by_email(db, email=item.email)
 
     if user_by_email:
         raise HTTPException(status_code=409, detail="The email is exist.")
 
-    db_user = user.create(db, obj_in=item)
+    db_user = crud.user.create(db, obj_in=item)
 
     return {"message": "ok", "user_id": db_user.id}
 
@@ -35,7 +35,7 @@ def create_user(item: schemas.UserCreaet, db: Session = Depends(deps.get_db)):
 def get_user_profile(user_id: int, db: Session = Depends(deps.get_db)):
     """取得用戶個人資料"""
 
-    db_user = user.get(db, user_id)
+    db_user = crud.user.get(db, user_id)
 
     if not db_user:
         raise HTTPException(status_code=404, detail=f"Can't found user id: {user_id}.")
@@ -48,17 +48,17 @@ def update_user_profile(user_id: int, item: schemas.UserUpdate, db: Session = De
     """更新用戶個人資料"""
 
     if item.email:
-        user_by_email = user.get_by_email(db, email=item.email)
+        user_by_email = crud.user.get_by_email(db, email=item.email)
 
         if user_by_email:
             raise HTTPException(status_code=409, detail="The email is exist")
 
-    db_user = user.get(db, user_id)
+    db_user = crud.user.get(db, user_id)
 
     if not db_user:
         raise HTTPException(status_code=404, detail=f"Can't found user id: {user_id}")
 
-    new_user = user.update(db, db_obj=db_user, obj_in=item)
+    new_user = crud.user.update(db, db_obj=db_user, obj_in=item)
 
     return new_user
 
@@ -67,7 +67,7 @@ def update_user_profile(user_id: int, item: schemas.UserUpdate, db: Session = De
 def get_user_profile_simple(user_id: int, db: Session = Depends(deps.get_db)):
     """取得簡易版的用戶個人資料"""
 
-    db_user = user.get(db, user_id)
+    db_user = crud.user.get(db, user_id)
 
     if not db_user:
         raise HTTPException(status_code=404, detail=f"Can't found user id: {user_id}.")
