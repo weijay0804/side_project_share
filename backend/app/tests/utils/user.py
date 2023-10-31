@@ -1,7 +1,11 @@
+from typing import Dict
 import random
+
+from fastapi.testclient import TestClient
 
 from app.schemas.user import UserInDB, UserCreaet
 from app.tests.utils.utils import fake_data
+from app.core.config import settings
 
 
 def create_random_user_data() -> UserInDB:
@@ -38,3 +42,17 @@ def create_random_user_create_obj() -> UserCreaet:
     user_create = UserCreaet(username=username, email=email, password=password)
 
     return user_create
+
+
+def user_authentication_headers(*, client: TestClient, email: str, password: str) -> Dict[str, str]:
+    """認證使用者，並回傳 Bearer headers"""
+
+    data = {"username": email, "password": password}
+
+    r = client.post(f"{settings.API_STR}/auth/token", data=data)
+
+    token = r.json()["access_token"]
+
+    headers = {"Authorization": f"Bearer {token}"}
+
+    return headers

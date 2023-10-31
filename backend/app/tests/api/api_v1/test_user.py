@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.tests.utils.user import create_random_user_create_obj
+from app.tests.utils.user import create_random_user_create_obj, user_authentication_headers
 from app.crud import user as user_crud
 
 
@@ -34,7 +34,11 @@ def test_get_user_profile(client: TestClient, db: Session) -> None:
 
     user = user_crud.create(db, obj_in=user_in)
 
-    r = client.get(f"{settings.API_STR}/users/{user.id}/profile")
+    headers = user_authentication_headers(
+        client=client, email=user_in.email, password=user_in.password
+    )
+
+    r = client.get(f"{settings.API_STR}/users/me/profile", headers=headers)
 
     data = r.json()
 
@@ -43,19 +47,25 @@ def test_get_user_profile(client: TestClient, db: Session) -> None:
     assert data["email"] == user.email
 
 
-def test_get_user_profile_with_not_exist_id(client: TestClient) -> None:
-    r = client.get(f"{settings.API_STR}/users/10000/profile")
+def test_get_user_profile_with_invalid_authentication(client: TestClient) -> None:
+    invalid_header = {"Authorization": "Bearer invalid"}
 
-    assert r.status_code == 404
+    r = client.get(f"{settings.API_STR}/users/me/profile", headers=invalid_header)
+
+    assert r.status_code == 401
 
 
 def test_update_user(client: TestClient, db: Session) -> None:
     user_in = create_random_user_create_obj()
     user = user_crud.create(db, obj_in=user_in)
 
+    headers = user_authentication_headers(
+        client=client, email=user_in.email, password=user_in.password
+    )
+
     update_data = {"username": "test"}
 
-    r = client.patch(f"{settings.API_STR}/users/{user.id}/profile", json=update_data)
+    r = client.patch(f"{settings.API_STR}/users/me/profile", json=update_data, headers=headers)
 
     new_user = user_crud.get(db, user.id)
 
@@ -64,21 +74,29 @@ def test_update_user(client: TestClient, db: Session) -> None:
     assert new_user.email == user.email
 
 
+def test_update_user_with_invalid_authentication(client: TestClient) -> None:
+    invalid_header = {"Authorization": "Bearer invalid"}
+
+    r = client.patch(
+        f"{settings.API_STR}/users/me/profile", json={"username": "test"}, headers=invalid_header
+    )
+
+    assert r.status_code == 401
+
+
 def test_update_user_with_exist_email(client: TestClient, db: Session) -> None:
     user_in = create_random_user_create_obj()
     user = user_crud.create(db, obj_in=user_in)
 
+    headers = user_authentication_headers(
+        client=client, email=user_in.email, password=user_in.password
+    )
+
     update_data = {"email": user.email}
 
-    r = client.patch(f"{settings.API_STR}/users/{user.id}/profile", json=update_data)
+    r = client.patch(f"{settings.API_STR}/users/me/profile", json=update_data, headers=headers)
 
     assert r.status_code == 409
-
-
-def test_update_user_with_not_exist_id(client: TestClient) -> None:
-    r = client.patch(f"{settings.API_STR}/users/10000/profile", json={"username": "test"})
-
-    assert r.status_code == 404
 
 
 def test_get_user_proflie_simple(client: TestClient, db: Session) -> None:

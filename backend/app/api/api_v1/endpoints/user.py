@@ -10,8 +10,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import schemas
-from app.api import deps
 from app import crud
+from app.api import deps
+from app.models import User
 
 
 router = APIRouter()
@@ -31,20 +32,19 @@ def create_user(item: schemas.UserCreaet, db: Session = Depends(deps.get_db)):
     return {"message": "ok", "user_id": db_user.id}
 
 
-@router.get("/{user_id}/profile", summary="取得詳細的使用者個人資料", response_model=schemas.User)
-def get_user_profile(user_id: int, db: Session = Depends(deps.get_db)):
+@router.get("/me/profile", summary="取得詳細的使用者個人資料", response_model=schemas.User)
+def get_user_profile(user: User = Depends(deps.get_current_user)):
     """取得用戶個人資料"""
 
-    db_user = crud.user.get(db, user_id)
-
-    if not db_user:
-        raise HTTPException(status_code=404, detail=f"Can't found user id: {user_id}.")
-
-    return db_user
+    return user
 
 
-@router.patch("/{user_id}/profile", summary="更新使用者個人資料", response_model=schemas.User)
-def update_user_profile(user_id: int, item: schemas.UserUpdate, db: Session = Depends(deps.get_db)):
+@router.patch("/me/profile", summary="更新使用者個人資料", response_model=schemas.User)
+def update_user_profile(
+    item: schemas.UserUpdate,
+    user: User = Depends(deps.get_current_user),
+    db: Session = Depends(deps.get_db),
+):
     """更新用戶個人資料"""
 
     if item.email:
@@ -53,12 +53,7 @@ def update_user_profile(user_id: int, item: schemas.UserUpdate, db: Session = De
         if user_by_email:
             raise HTTPException(status_code=409, detail="The email is exist")
 
-    db_user = crud.user.get(db, user_id)
-
-    if not db_user:
-        raise HTTPException(status_code=404, detail=f"Can't found user id: {user_id}")
-
-    new_user = crud.user.update(db, db_obj=db_user, obj_in=item)
+    new_user = crud.user.update(db, db_obj=user, obj_in=item)
 
     return new_user
 
