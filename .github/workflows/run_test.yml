@@ -7,6 +7,9 @@ on:
 
   pull_request:
 
+env:
+  JWT_SECRET_KEY: test_key
+
 jobs:
   run-test:
     name: Run Test
