@@ -3,12 +3,12 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.tests.utils.user import create_random_user_create_obj, user_authentication_headers
+from app.tests.utils.user import create_random_user_api_create_obj, user_authentication_headers
 from app.crud import user as user_crud
 
 
 def test_create_user(client: TestClient) -> None:
-    user = create_random_user_create_obj()
+    user = create_random_user_api_create_obj()
 
     data = jsonable_encoder(user)
 
@@ -18,7 +18,7 @@ def test_create_user(client: TestClient) -> None:
 
 
 def test_create_user_with_exist_email(client: TestClient, db: Session) -> None:
-    user_in = create_random_user_create_obj()
+    user_in = create_random_user_api_create_obj()
 
     user = user_crud.create(db, obj_in=user_in)
 
@@ -30,7 +30,7 @@ def test_create_user_with_exist_email(client: TestClient, db: Session) -> None:
 
 
 def test_get_user_profile(client: TestClient, db: Session) -> None:
-    user_in = create_random_user_create_obj()
+    user_in = create_random_user_api_create_obj()
 
     user = user_crud.create(db, obj_in=user_in)
 
@@ -56,7 +56,7 @@ def test_get_user_profile_with_invalid_authentication(client: TestClient) -> Non
 
 
 def test_update_user(client: TestClient, db: Session) -> None:
-    user_in = create_random_user_create_obj()
+    user_in = create_random_user_api_create_obj()
     user = user_crud.create(db, obj_in=user_in)
 
     headers = user_authentication_headers(
@@ -85,7 +85,7 @@ def test_update_user_with_invalid_authentication(client: TestClient) -> None:
 
 
 def test_update_user_with_exist_email(client: TestClient, db: Session) -> None:
-    user_in = create_random_user_create_obj()
+    user_in = create_random_user_api_create_obj()
     user = user_crud.create(db, obj_in=user_in)
 
     headers = user_authentication_headers(
@@ -100,7 +100,7 @@ def test_update_user_with_exist_email(client: TestClient, db: Session) -> None:
 
 
 def test_get_user_proflie_simple(client: TestClient, db: Session) -> None:
-    user_in = create_random_user_create_obj()
+    user_in = create_random_user_api_create_obj()
     user = user_crud.create(db, obj_in=user_in)
 
     r = client.get(f"{settings.API_STR}/users/{user.id}/profile/simple")

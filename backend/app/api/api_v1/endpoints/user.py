@@ -9,7 +9,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app import schemas
+from app.schemas import api_schemas
 from app import crud
 from app.api import deps
 from app.models import User
@@ -19,7 +19,7 @@ router = APIRouter()
 
 
 @router.post("/", status_code=201, summary="新增一個使用者")
-def create_user(item: schemas.UserCreaet, db: Session = Depends(deps.get_db)):
+def create_user(item: api_schemas.UserCreate, db: Session = Depends(deps.get_db)):
     """新增使用者"""
 
     user_by_email = crud.user.get_by_email(db, email=item.email)
@@ -32,16 +32,16 @@ def create_user(item: schemas.UserCreaet, db: Session = Depends(deps.get_db)):
     return {"message": "ok", "user_id": db_user.id}
 
 
-@router.get("/me/profile", summary="取得詳細的使用者個人資料", response_model=schemas.User)
+@router.get("/me/profile", summary="取得詳細的使用者個人資料", response_model=api_schemas.User)
 def get_user_profile(user: User = Depends(deps.get_current_user)):
     """取得用戶個人資料"""
 
     return user
 
 
-@router.patch("/me/profile", summary="更新使用者個人資料", response_model=schemas.User)
+@router.patch("/me/profile", summary="更新使用者個人資料", response_model=api_schemas.User)
 def update_user_profile(
-    item: schemas.UserUpdate,
+    item: api_schemas.UserUpdate,
     user: User = Depends(deps.get_current_user),
     db: Session = Depends(deps.get_db),
 ):
@@ -58,7 +58,9 @@ def update_user_profile(
     return new_user
 
 
-@router.get("/{user_id}/profile/simple", summary="取得簡易的使用者個人資料", response_model=schemas.UserSimple)
+@router.get(
+    "/{user_id}/profile/simple", summary="取得簡易的使用者個人資料", response_model=api_schemas.UserSimple
+)
 def get_user_profile_simple(user_id: int, db: Session = Depends(deps.get_db)):
     """取得簡易版的用戶個人資料"""
 

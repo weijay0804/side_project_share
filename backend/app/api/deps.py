@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 
 from app import crud
 from app.db.session import SessionLocal
-from app.schemas import JwtTokenData
+from app.schemas.security import JwtTokenData
 from app.models import User
 from app.core import config
 
