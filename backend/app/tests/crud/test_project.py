@@ -1,0 +1,41 @@
+from sqlalchemy.orm import Session
+
+from app import crud
+from app.schemas.db_schemas import ProjectDBUpdate
+from app.tests.utils.user import create_random_user_db_create_obj
+from app.tests.utils.project import create_random_project_db_create_obj
+
+
+def test_create_project(db: Session) -> None:
+    user_in = create_random_user_db_create_obj()
+    user = crud.user.create(db, obj_in=user_in)
+
+    project_in = create_random_project_db_create_obj()
+
+    project = crud.project.create(db, user=user, obj_in=project_in)
+
+    assert project.id is not None
+    assert project.title == project_in.title
+    assert project.max_member_number == project_in.max_member_number
+    assert project.current_member_number == 0
+    assert project.intro == project_in.intro
+    assert project.desc == project_in.desc
+    assert project.image_url == project_in.image_url
+
+
+def test_update_project(db: Session) -> None:
+    user_in = create_random_user_db_create_obj()
+    user = crud.user.create(db, obj_in=user_in)
+
+    project_in = create_random_project_db_create_obj()
+    project = crud.project.create(db, user=user, obj_in=project_in)
+
+    assert project.title == project_in.title
+
+    update_data = ProjectDBUpdate(title="update_test")
+
+    updated_project = crud.project.update(db, db_obj=project, obj_in=update_data)
+
+    assert updated_project.title == "update_test"
+    assert updated_project.max_member_number == project.max_member_number
+    assert updated_project.desc == project.desc
