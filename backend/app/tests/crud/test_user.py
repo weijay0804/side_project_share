@@ -41,7 +41,7 @@ def test_get_user_by_email(db: Session) -> None:
 
     user = crud.user.create(db, obj_in=user_in)
 
-    user_get = crud.user.get_by_username(db, username=user_in.username)
+    user_get = crud.user.get_by_email(db, email=user_in.email)
 
     assert user_get
     assert user_get.username == user.username
