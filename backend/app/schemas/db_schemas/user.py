@@ -8,19 +8,8 @@ class UserBase(BaseModel):
     email: Optional[str] = None
 
 
-class UserCreaet(UserBase):
-    """建立使用者時傳入的資料格式"""
-
-    email: str
-    username: str
-    password: str
-
-
-class UserInDBBase(UserBase):
+class UserInDB(UserBase):
     id: Optional[int] = None
-
-
-class UserInDB(UserInDBBase):
     avatar_url: Optional[str] = None
     city: Optional[str] = None
     age: Optional[int] = None
@@ -37,15 +26,13 @@ class UserInDB(UserInDBBase):
         extra = "ignore"
 
 
-class UserSimple(BaseModel):
-    id: int
+class UserDBCreaet(UserBase):
+    """建立使用者時傳入的資料格式"""
+
+    email: str
     username: str
-    avatar_url: Optional[str] = None
+    password: str
 
 
-class User(UserInDB):
-    pass
-
-
-class UserUpdate(UserInDB):
+class UserDBUpdate(UserInDB):
     password: Optional[str] = None
