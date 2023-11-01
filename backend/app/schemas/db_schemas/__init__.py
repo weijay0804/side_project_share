@@ -5,3 +5,4 @@
 """
 
 from .user import UserInDB, UserDBUpdate, UserDBCreaet
+from .project import ProjectInBD, ProjectDBUpdate, ProjectDBCreate
