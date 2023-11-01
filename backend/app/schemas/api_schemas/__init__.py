@@ -5,3 +5,4 @@
 """
 
 from .user import User, UserUpdate, UserCreate, UserSimple
+from .project import Project, ProjectMe, ProjectSimple, ProjectCreate, ProjectUpdate

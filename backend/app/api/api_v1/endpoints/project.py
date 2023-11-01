@@ -8,12 +8,12 @@ from typing import Optional, List
 
 from fastapi import APIRouter, Query
 
-from app import schemas
+from app.schemas import api_schemas
 
 router = APIRouter()
 
 
-@router.get("/", summary="取得所有的專案計畫資料", response_model=List[schemas.ProjectSimple])
+@router.get("/", summary="取得所有的專案計畫資料", response_model=List[api_schemas.ProjectSimple])
 def get_all_project(limit: Optional[int] = Query(default=10, ge=1, le=10, description="一次回傳的專案數量")):
     """取得所有的專案資料"""
 
@@ -21,13 +21,13 @@ def get_all_project(limit: Optional[int] = Query(default=10, ge=1, le=10, descri
 
 
 @router.post("/", summary="新增一個專案計畫")
-def create_project(item: schemas.ProjectCreate):
+def create_project(item: api_schemas.ProjectCreate):
     """新增專案"""
 
     pass
 
 
-@router.get("/me", summary="取得所有屬於使用者自己的專案計畫", response_model=List[schemas.ProjectUserRead])
+@router.get("/me", summary="取得所有屬於使用者自己的專案計畫", response_model=List[api_schemas.ProjectMe])
 def get_user_project(
     limit: Optional[int] = Query(default=10, ge=1, le=10, description="一次回傳的專案數量")
 ):
@@ -36,7 +36,7 @@ def get_user_project(
     pass
 
 
-@router.get("/{project_id}", summary="取得指定專案計畫的詳細資料", response_model=schemas.Project)
+@router.get("/{project_id}", summary="取得指定專案計畫的詳細資料", response_model=api_schemas.Project)
 def get_project(project_id: int):
     """取得專案的詳細資料"""
 
