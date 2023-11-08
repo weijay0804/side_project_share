@@ -39,3 +39,20 @@ def test_update_project(db: Session) -> None:
     assert updated_project.title == "update_test"
     assert updated_project.max_member_number == project.max_member_number
     assert updated_project.desc == project.desc
+
+
+def test_get_user_projects(db: Session) -> None:
+    user_in = create_random_user_db_create_obj()
+    user = crud.user.create(db, obj_in=user_in)
+
+    project1_in = create_random_project_db_create_obj()
+    project1 = crud.project.create(db, user=user, obj_in=project1_in)
+
+    project2_in = create_random_project_db_create_obj()
+    project2 = crud.project.create(db, user=user, obj_in=project2_in)
+
+    user_projects = crud.project.get_user_projects(db, user_id=user.id)
+
+    assert len(user_projects) == 2
+    assert project1 in user_projects
+    assert project2 in user_projects
