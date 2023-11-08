@@ -1,4 +1,4 @@
-from typing import Union, Dict, Any
+from typing import Union, Dict, Any, List
 
 from sqlalchemy.orm import Session
 
@@ -35,6 +35,21 @@ class CRUDProject(CRUDBase[Project, ProjectDBCreate, ProjectDBUpdate]):
             update_data = obj_in.model_dump(exclude_unset=True)
 
         return super().update(db, db_obj=db_obj, obj_in=update_data)
+
+    def get_user_projects(
+        self, db: Session, *, user_id: int, skip: int = 0, limit: int = 10
+    ) -> List[Project]:
+        """取得屬於特定使用者的 project list"""
+
+        projects = (
+            db.query(self.model)
+            .filter(Project.host_user_id == user_id)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
+        return projects
 
 
 project = CRUDProject(Project)
