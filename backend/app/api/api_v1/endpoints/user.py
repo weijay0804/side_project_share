@@ -7,9 +7,10 @@
 """
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
-from app.schemas import api_schemas
+from app.schemas import api_schemas, db_schemas
 from app import crud
 from app.api import deps
 from app.models import User
@@ -53,7 +54,9 @@ def update_user_profile(
         if user_by_email:
             raise HTTPException(status_code=409, detail="The email is exist")
 
-    new_user = crud.user.update(db, db_obj=user, obj_in=item)
+    user_in = db_schemas.UserDBUpdate(**(jsonable_encoder(item)))
+
+    new_user = crud.user.update(db, db_obj=user, obj_in=user_in)
 
     return new_user
 
