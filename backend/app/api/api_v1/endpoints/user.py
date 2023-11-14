@@ -6,37 +6,70 @@
 
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
+from sqlalchemy.orm import Session
 
-from app import schemas
+from app.schemas import api_schemas, db_schemas
+from app import crud
+from app.api import deps
+from app.models import User
 
 
 router = APIRouter()
 
 
 @router.post("/", status_code=201, summary="新增一個使用者")
-def create_user(item: schemas.UserCreaet):
+def create_user(item: api_schemas.UserCreate, db: Session = Depends(deps.get_db)):
     """新增使用者"""
 
-    pass
+    user_by_email = crud.user.get_by_email(db, email=item.email)
+
+    if user_by_email:
+        raise HTTPException(status_code=409, detail="The email is exist.")
+
+    db_user = crud.user.create(db, obj_in=item)
+
+    return {"message": "ok", "user_id": db_user.id}
 
 
-@router.get("/{user_id}/profile", summary="取得詳細的使用者個人資料", response_model=schemas.User)
-def get_user_profile(user_id: int):
+@router.get("/me/profile", summary="取得詳細的使用者個人資料", response_model=api_schemas.User)
+def get_user_profile(user: User = Depends(deps.get_current_user)):
     """取得用戶個人資料"""
 
-    pass
+    return user
 
 
-@router.patch("/{user_id}/profile", summary="更新使用者個人資料")
-def update_user_profile(user_id: int, item: schemas.UserUpdate):
+@router.patch("/me/profile", summary="更新使用者個人資料", response_model=api_schemas.User)
+def update_user_profile(
+    item: api_schemas.UserUpdate,
+    user: User = Depends(deps.get_current_user),
+    db: Session = Depends(deps.get_db),
+):
     """更新用戶個人資料"""
 
-    pass
+    if item.email:
+        user_by_email = crud.user.get_by_email(db, email=item.email)
+
+        if user_by_email:
+            raise HTTPException(status_code=409, detail="The email is exist")
+
+    user_in = db_schemas.UserDBUpdate(**(jsonable_encoder(item)))
+
+    new_user = crud.user.update(db, db_obj=user, obj_in=user_in)
+
+    return new_user
 
 
-@router.get("/{user_id}/profile/simple", summary="取得簡易的使用者個人資料", response_model=schemas.UserSimple)
-def get_user_profile_simple(user_id: int):
+@router.get(
+    "/{user_id}/profile/simple", summary="取得簡易的使用者個人資料", response_model=api_schemas.UserSimple
+)
+def get_user_profile_simple(user_id: int, db: Session = Depends(deps.get_db)):
     """取得簡易版的用戶個人資料"""
 
-    pass
+    db_user = crud.user.get(db, user_id)
+
+    if not db_user:
+        raise HTTPException(status_code=404, detail=f"Can't found user id: {user_id}.")
+
+    return db_user

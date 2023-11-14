@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from fastapi.encoders import jsonable_encoder
 
 from app.models.user import User
+from app.core.security import get_password_hash
 from app.tests.utils.user import create_random_user_data
 
 
@@ -12,7 +13,7 @@ def test_create_user(db: Session) -> None:
 
     user_in = create_random_user_data()
 
-    user = User(**(jsonable_encoder(user_in)), password="test")
+    user = User(**(jsonable_encoder(user_in)), password_hash=get_password_hash("test"))
 
     db.add(user)
     db.commit()
@@ -61,26 +62,6 @@ def test_user_default(db: Session) -> None:
     assert user.is_discord_public is False
     assert user.skill is None
     assert user.create_at is not None
-
-
-def test_create_user_with_same_username(db: Session) -> None:
-    """測試 username 欄位的唯一性"""
-
-    user_in = create_random_user_data()
-
-    user = User(**(jsonable_encoder(user_in)))
-
-    db.add(user)
-    db.commit()
-
-    user_in2 = create_random_user_data()
-    user2 = User(username=user_in.username, email=user_in2.email)
-
-    with pytest.raises(IntegrityError):
-        db.add(user2)
-        db.commit()
-
-    db.rollback()
 
 
 def test_create_user_with_same_email(db: Session) -> None:

@@ -3,7 +3,7 @@ from typing import Optional, List
 from pydantic import BaseModel
 
 from .topic import TopicInDB
-from .user import UserSimple
+from app.schemas.api_schemas.user import UserSimple
 
 
 class ProjectBase(BaseModel):

@@ -27,3 +27,6 @@ class FakeData:
 
     def random_city(self) -> str:
         return self.fake.city()
+
+
+fake_data = FakeData(locale="zh-TW")

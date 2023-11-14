@@ -10,6 +10,9 @@ pydantic-settings = "*"
 sqlalchemy = "*"
 alembic = "*"
 passlib = {extras = ["bcrypt"], version = "*"}
+python-dotenv = "*"
+python-multipart = "*"
+python-jose = "*"
 
 [dev-packages]
 httpx = "*"

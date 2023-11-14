@@ -13,7 +13,7 @@ class User(Base):
     __tablename__ = "user"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(30), index=True, unique=True, nullable=False)
+    username = Column(String(30), index=True, nullable=False)
     email = Column(String(128), index=True, unique=True, nullable=False)
     password_hash = Column(String(128))
     avatar_url = Column(Text)
@@ -32,14 +32,3 @@ class User(Base):
     projects = relationship(
         "Project", back_populates="user", cascade="delete, delete-orphan", lazy="dynamic"
     )
-
-    @property
-    def password(self):
-        raise AttributeError('Password is not a readablb attribute.')
-
-    @password.setter
-    def password(self, password: str) -> None:
-        self.password_hash = pwd_context.hash(password)
-
-    def verify_password(self, password: str) -> bool:
-        return pwd_context.verify(password, self.password_hash)
