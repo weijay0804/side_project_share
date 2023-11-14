@@ -11,7 +11,7 @@ class Project(BaseModel):
     title: str
     max_member_number: int
     status: str
-    intor: Optional[str] = None
+    intro: Optional[str] = None
     desc: Optional[str] = None
     image_url: Optional[str] = None
     topic: Optional[list] = None
@@ -44,7 +44,7 @@ class ProjectUpdate(BaseModel):
     title: Optional[str] = None
     max_member_number: Optional[int] = None
     status: Optional[str] = None
-    intor: Optional[str] = None
+    intro: Optional[str] = None
     desc: Optional[str] = None
     image_url: Optional[str] = None
 

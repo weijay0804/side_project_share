@@ -1,6 +1,7 @@
 import random
 
 from app.schemas.db_schemas import ProjectInBD, ProjectDBCreate
+from app.schemas.api_schemas import ProjectCreate
 from app.tests.utils.utils import fake_data
 
 
@@ -40,3 +41,25 @@ def create_random_project_db_create_obj() -> ProjectDBCreate:
     )
 
     return project_create
+
+
+def create_random_project_api_create_obj() -> ProjectCreate:
+    """建立測試的 `ProjectCreate` model 實例，主要是針對 API 測試時的資料"""
+
+    title = fake_data.random_string(string_lenght=20)
+    max_member_number = fake_data.random_int(min=1, max=10)
+    status = random.choice(["recruit", "progress", "done"])
+    intro = fake_data.random_lorem(nb_sentences=1)
+    desc = fake_data.random_lorem()
+    image_url = fake_data.random_url()
+
+    obj = ProjectCreate(
+        title=title,
+        max_member_number=max_member_number,
+        status=status,
+        intro=intro,
+        desc=desc,
+        image_url=image_url,
+    )
+
+    return obj

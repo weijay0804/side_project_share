@@ -30,6 +30,6 @@ class ProjectDBUpdate(BaseModel):
     max_member_number: Optional[int] = None
     current_member_number: Optional[int] = None
     status: Optional[str] = None
-    intor: Optional[str] = None
+    intro: Optional[str] = None
     desc: Optional[str] = None
     image_url: Optional[str] = None
