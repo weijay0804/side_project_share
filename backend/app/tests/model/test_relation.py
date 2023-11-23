@@ -7,6 +7,8 @@ from fastapi.encoders import jsonable_encoder
 
 from app.models.user import User
 from app.models.project import Project
+from app.models.topic import Topic
+from app.tests.utils import utils
 from app.tests.utils.user import create_random_user_data
 from app.tests.utils.project import create_random_project_data
 
@@ -32,6 +34,22 @@ def clear_project(db: Session) -> Generator:
 
     yield None
     db.execute(text("DELETE FROM project"))
+    db.commit()
+
+
+@pytest.fixture(scope="function")
+def clear_topic(db: Session) -> Generator:
+    yield None
+
+    db.execute(text("DELETE FROM topic"))
+    db.commit()
+
+
+@pytest.fixture(scope="function")
+def clear_project_topic_intermediary(db: Session) -> Generator:
+    yield None
+
+    db.execute(text("DELETE FROM project_topic_intermediay"))
     db.commit()
 
 
@@ -129,3 +147,160 @@ class TestUserProjectRelation:
 
         assert deleted_project1 is None
         assert deleted_project2 is None
+
+
+@pytest.mark.usefixtures("clear_project_topic_intermediary")
+@pytest.mark.usefixtures("clear_project")
+@pytest.mark.usefixtures("clear_topic")
+@pytest.mark.usefixtures("db_user")
+class TestProjectTopicRelation:
+    def test_create(self, db: Session, db_user: User) -> None:
+        project_data = create_random_project_data()
+        project = Project(**jsonable_encoder(project_data), host_user_id=db_user.id)
+
+        topic = Topic(name=utils.fake_data.random_string())
+
+        db.add_all([project, topic])
+        db.commit()
+        db.refresh(project)
+        db.refresh(topic)
+
+        project_topic = project.topics
+
+        assert len(project_topic) == 0
+
+        project.topics.append(topic)
+
+        db.commit()
+
+        project_topic = project.topics
+
+        assert len(project_topic) == 1
+        assert topic == project_topic[0]
+
+    def test_create_many_topic(self, db: Session, db_user: User) -> None:
+        project_data = create_random_project_data()
+        project = Project(**jsonable_encoder(project_data), host_user_id=db_user.id)
+
+        topic1 = Topic(name=utils.fake_data.random_string())
+        topic2 = Topic(name=utils.fake_data.random_string())
+
+        db.add_all([project, topic1, topic2])
+        db.commit()
+        db.refresh(project)
+        db.refresh(topic1)
+        db.refresh(topic2)
+
+        project.topics.append(topic1)
+        project.topics.append(topic2)
+
+        db.commit()
+
+        project_topic = project.topics
+
+        assert len(project_topic) == 2
+        assert topic1 in project_topic
+        assert topic2 in project_topic
+
+    def test_create_many_project(self, db: Session, db_user: User) -> None:
+        project1_data = create_random_project_data()
+        project2_data = create_random_project_data()
+
+        project1 = Project(**jsonable_encoder(project1_data), host_user_id=db_user.id)
+        project2 = Project(**jsonable_encoder(project2_data), host_user_id=db_user.id)
+
+        topic = Topic(name=utils.fake_data.random_string())
+
+        db.add_all([project1, project2, topic])
+        db.commit()
+        db.refresh(project1)
+        db.refresh(project2)
+        db.refresh(topic)
+
+        project1.topics.append(topic)
+        project2.topics.append(topic)
+        db.commit()
+
+        project1_topic = project1.topics
+        project2_topic = project2.topics
+
+        assert len(project1_topic) == 1
+        assert len(project2_topic) == 1
+        assert topic in project1_topic
+        assert topic in project2_topic
+
+    def test_remove_topic(self, db: Session, db_user: User) -> None:
+        project_data = create_random_project_data()
+        project = Project(**jsonable_encoder(project_data), host_user_id=db_user.id)
+
+        topic = Topic(name=utils.fake_data.random_string())
+
+        db.add_all([project, topic])
+        db.commit()
+        db.refresh(project)
+        db.refresh(topic)
+
+        project.topics.append(topic)
+        db.commit()
+
+        project_topic = project.topics
+
+        assert topic in project_topic
+
+        project.topics.remove(topic)
+        db.commit()
+
+        project_topic = project.topics
+
+        assert topic not in project_topic
+
+    def test_delete_project(self, db: Session, db_user: User) -> None:
+        project_data = create_random_project_data()
+        project = Project(**jsonable_encoder(project_data), host_user_id=db_user.id)
+
+        topic = Topic(name=utils.fake_data.random_string())
+
+        db.add_all([project, topic])
+        db.commit()
+        db.refresh(project)
+        db.refresh(topic)
+
+        project.topics.append(topic)
+        db.commit()
+
+        db.delete(project)
+        db.commit()
+
+        project = db.get(Project, project.id)
+        topic = db.get(Topic, topic.id)
+        topic_project = topic.projects.all()
+
+        assert project is None
+        assert topic is not None
+        assert len(topic_project) == 0
+
+    def test_delete_topic(self, db: Session, db_user: User) -> None:
+        project_data = create_random_project_data()
+        project = Project(**jsonable_encoder(project_data), host_user_id=db_user.id)
+
+        topic = Topic(name=utils.fake_data.random_string())
+
+        db.add_all([project, topic])
+        db.commit()
+        db.refresh(project)
+        db.refresh(topic)
+
+        project.topics.append(topic)
+        db.commit()
+
+        db.delete(topic)
+        db.commit()
+
+        topic = db.get(Topic, topic.id)
+        project = db.get(Project, project.id)
+
+        project_topic = project.topics
+
+        assert topic is None
+        assert project is not None
+        assert len(project_topic) == 0

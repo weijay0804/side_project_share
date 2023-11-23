@@ -5,6 +5,8 @@ from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 
+from .intermediary import project_topic_table
+
 
 class Project(Base):
     __tablename__ = "project"
@@ -22,3 +24,8 @@ class Project(Base):
 
     # 建立與 user table 多對一的關係
     user = relationship("User", back_populates="projects")
+
+    # 建立與 topic table 多對多關係
+    topics = relationship(
+        "Topic", secondary=project_topic_table, back_populates="projects", lazy="joined"
+    )
