@@ -27,7 +27,7 @@ def upgrade() -> None:
         sa.Column('email', sa.String(length=128), nullable=False),
         sa.Column('password_hash', sa.String(length=128), nullable=True),
         sa.Column('avatar_url', sa.Text(), nullable=True),
-        sa.Column('city', sa.String(), nullable=True),
+        sa.Column('city', sa.String(length=50), nullable=True),
         sa.Column('age', sa.SmallInteger(), nullable=True),
         sa.Column('gender', sa.String(length=15), nullable=True),
         sa.Column('is_email_public', sa.Boolean(), nullable=True),

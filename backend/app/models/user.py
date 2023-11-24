@@ -17,7 +17,7 @@ class User(Base):
     email = Column(String(128), index=True, unique=True, nullable=False)
     password_hash = Column(String(128))
     avatar_url = Column(Text)
-    city = Column(String)
+    city = Column(String(50))
     age = Column(SmallInteger)
     gender = Column(String(15))
     is_email_public = Column(Boolean(), default=False)
