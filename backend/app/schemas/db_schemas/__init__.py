@@ -6,3 +6,4 @@
 
 from .user import UserInDB, UserDBUpdate, UserDBCreaet
 from .project import ProjectInBD, ProjectDBUpdate, ProjectDBCreate
+from .topic import TopicInDB, TopicDBUpdate, TopicDBCreate

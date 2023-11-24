@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
 
 from app import crud
-from app.schemas.db_schemas import ProjectDBUpdate
+from app.schemas.db_schemas import ProjectDBUpdate, TopicDBCreate
 from app.tests.utils.user import create_random_user_db_create_obj
 from app.tests.utils.project import create_random_project_db_create_obj
+from app.tests.utils import utils
 
 
 def test_create_project(db: Session) -> None:
@@ -56,3 +57,44 @@ def test_get_user_projects(db: Session) -> None:
     assert len(user_projects) == 2
     assert project1 in user_projects
     assert project2 in user_projects
+
+
+def test_add_topic(db: Session) -> None:
+    user_in = create_random_user_db_create_obj()
+    user = crud.user.create(db, obj_in=user_in)
+
+    project_in = create_random_project_db_create_obj()
+    project = crud.project.create(db, user=user, obj_in=project_in)
+
+    topics = project.topics
+
+    assert topics == []
+
+    topic_in = TopicDBCreate(name=utils.fake_data.random_string())
+    topic = crud.topic.create(db, obj_in=topic_in)
+
+    crud.project.add_topic(db, db_obj=project, topic=topic)
+
+    topics = project.topics
+
+    assert len(topics) == 1
+    assert topic in topics
+
+
+def test_get_topics(db: Session) -> None:
+    user_in = create_random_user_db_create_obj()
+    user = crud.user.create(db, obj_in=user_in)
+
+    project_in = create_random_project_db_create_obj()
+    project = crud.project.create(db, user=user, obj_in=project_in)
+
+    topic_in = TopicDBCreate(name=utils.fake_data.random_string())
+    topic = crud.topic.create(db, obj_in=topic_in)
+
+    project.topics.append(topic)
+    db.commit()
+
+    topics = crud.project.get_topics(db_obj=project)
+
+    assert len(topics) == 1
+    assert topic in topics

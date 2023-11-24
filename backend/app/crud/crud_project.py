@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.crud.base import CRUDBase
 from app.models.project import Project
 from app.models.user import User
+from app.models.topic import Topic
 from app.schemas.db_schemas import ProjectDBCreate, ProjectDBUpdate
 
 
@@ -50,6 +51,15 @@ class CRUDProject(CRUDBase[Project, ProjectDBCreate, ProjectDBUpdate]):
         )
 
         return projects
+
+    def add_topic(self, db: Session, *, db_obj: Project, topic: Topic) -> None:
+        db_obj.topics.append(topic)
+        db.commit()
+
+    def get_topics(self, *, db_obj: Project) -> List[Topic]:
+        topics = db_obj.topics
+
+        return topics
 
 
 project = CRUDProject(Project)
