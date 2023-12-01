@@ -17,6 +17,11 @@ class CRUDTopic(CRUDBase[Topic, TopicDBCreate, TopicDBUpdate]):
 
         return db_obj
 
+    def get_by_name(self, db: Session, *, name: str) -> Topic:
+        topic = db.query(Topic).filter(Topic.name == name).first()
+
+        return topic
+
     def get_projects(
         self, db: Session, *, topic_id: int, skip: int = 0, limit: int = 100
     ) -> List[Topic]:

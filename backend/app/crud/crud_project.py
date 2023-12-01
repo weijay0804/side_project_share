@@ -55,6 +55,7 @@ class CRUDProject(CRUDBase[Project, ProjectDBCreate, ProjectDBUpdate]):
     def add_topic(self, db: Session, *, db_obj: Project, topic: Topic) -> None:
         db_obj.topics.append(topic)
         db.commit()
+        db.refresh(db_obj)
 
     def get_topics(self, *, db_obj: Project) -> List[Topic]:
         topics = db_obj.topics

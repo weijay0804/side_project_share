@@ -32,11 +32,14 @@ def get_all_project(
     result = []
 
     for p in projcets:
+        topics_obj = crud.project.get_topics(db_obj=p)
+        topics = map(lambda t: api_schemas.Topic(**jsonable_encoder(t)), topics_obj)
+
         tmp = api_schemas.ProjectSimple(
             **(jsonable_encoder(p)),
             host_username=p.user.username,
             host_user_avatar_url=p.user.avatar_url,
-            topic=[],
+            topic=list(topics),
         )
 
         result.append(tmp)
@@ -62,10 +65,23 @@ def create_project(
 
     project = crud.project.create(db, user=user, obj_in=project_in)
 
+    topics = []
+
+    for topic_id in item.topic_id_list:
+        topic = crud.topic.get(db, topic_id)
+
+        if topic is None:
+            continue
+
+        crud.project.add_topic(db, db_obj=project, topic=topic)
+
+        topics.append(api_schemas.Topic(**jsonable_encoder(topic)))
+
     return api_schemas.ProjectSimple(
         **(jsonable_encoder(project)),
         host_username=user.username,
         host_user_avatar_url=user.avatar_url,
+        topic=topics,
     )
 
 
@@ -83,7 +99,10 @@ def get_user_project(
     result = []
 
     for p in projcets:
-        tmp = api_schemas.ProjectMe(id=p.id, title=p.title, status=p.status, topic=[])
+        topics = [
+            api_schemas.Topic(**jsonable_encoder(t)) for t in crud.project.get_topics(db_obj=p)
+        ]
+        tmp = api_schemas.ProjectMe(id=p.id, title=p.title, status=p.status, topic=topics)
 
         result.append(tmp)
 
@@ -99,11 +118,15 @@ def get_project(project_id: int, db: Session = Depends(deps.get_db)):
     if project is None:
         raise HTTPException(status_code=404, detail=f"Project ID {project_id} is not exist.")
 
+    topics = [
+        api_schemas.Topic(**jsonable_encoder(t)) for t in crud.project.get_topics(db_obj=project)
+    ]
+
     result = api_schemas.Project(
         **(jsonable_encoder(project)),
         host_username=project.user.username,
         host_user_avatar_url=project.user.avatar_url,
-        topic=[],
+        topic=topics,
         member=[],
     )
 

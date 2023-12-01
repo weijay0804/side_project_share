@@ -17,6 +17,18 @@ def test_create_topic(db: Session) -> None:
     assert topic.name == name
 
 
+def test_get_topic_by_name(db: Session) -> None:
+    name = utils.fake_data.random_string()
+    topic_in = TopicDBCreate(name=name)
+
+    topic = crud.topic.create(db, obj_in=topic_in)
+
+    topic_by_name = crud.topic.get_by_name(db, name=name)
+
+    assert topic_by_name == topic
+    assert topic_by_name.name == topic.name
+
+
 def test_update_topic(db: Session) -> None:
     name = utils.fake_data.random_string()
 

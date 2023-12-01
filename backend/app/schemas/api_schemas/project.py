@@ -1,6 +1,8 @@
 from typing import Optional, List
 from pydantic import BaseModel
 
+from app.schemas.api_schemas.topic import Topic
+
 
 class Project(BaseModel):
     """專案資源詳細資料"""
@@ -14,7 +16,7 @@ class Project(BaseModel):
     intro: Optional[str] = None
     desc: Optional[str] = None
     image_url: Optional[str] = None
-    topic: Optional[list] = None
+    topic: Optional[List[Topic]] = []
     member: Optional[list] = None
 
 
@@ -26,7 +28,7 @@ class ProjectSimple(BaseModel):
     host_user_avatar_url: Optional[str] = None
     title: str
     status: str
-    topic: Optional[list] = None
+    topic: Optional[List[Topic]] = []
 
 
 class ProjectMe(BaseModel):
@@ -35,7 +37,7 @@ class ProjectMe(BaseModel):
     id: int
     title: str
     status: str
-    topic: Optional[list] = None
+    topic: Optional[List[Topic]] = []
 
 
 class ProjectUpdate(BaseModel):
@@ -58,4 +60,4 @@ class ProjectCreate(BaseModel):
     intro: Optional[str] = None
     desc: Optional[str] = None
     image_url: Optional[str] = None
-    topic_id_list: Optional[List[int]] = None
+    topic_id_list: Optional[List[int]] = []
