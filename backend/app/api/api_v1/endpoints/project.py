@@ -157,3 +157,85 @@ def update_project(
         host_username=project.user.username,
         host_user_avatar_url=project.user.avatar_url,
     )
+
+
+@router.post("/{project_id}/topics/{topic_id}", response_model=api_schemas.Project, status_code=201)
+def create_project_topic(
+    project_id: int,
+    topic_id: int,
+    db: Session = Depends(deps.get_db),
+    user: User = Depends(deps.get_current_user),
+):
+    """新增專案的 topic"""
+
+    project = crud.project.get(db, project_id)
+
+    if project is None:
+        raise HTTPException(status_code=404)
+
+    if project.user.id != user.id:
+        raise HTTPException(status_code=403, detail="No Permissions.")
+
+    topic = crud.topic.get(db, topic_id)
+
+    if topic is None:
+        raise HTTPException(status_code=404)
+
+    raw_topics = crud.project.get_topics(db_obj=project)
+
+    if topic in raw_topics:
+        raise HTTPException(status_code=409)
+
+    crud.project.add_topic(db, db_obj=project, topic=topic)
+
+    topics = [
+        api_schemas.Topic(**jsonable_encoder(t)) for t in crud.project.get_topics(db_obj=project)
+    ]
+
+    return api_schemas.Project(
+        **jsonable_encoder(project),
+        host_username=project.user.username,
+        host_user_avatar_url=project.user.avatar_url,
+        topic=topics,
+    )
+
+
+@router.delete("/{project_id}/topics/{topic_id}", response_model=api_schemas.Project)
+def delete_project_topic(
+    project_id: int,
+    topic_id: int,
+    db: Session = Depends(deps.get_db),
+    user: User = Depends(deps.get_current_user),
+):
+    """刪除專案的指定 topic"""
+
+    project = crud.project.get(db, project_id)
+
+    if project is None:
+        raise HTTPException(status_code=404)
+
+    if project.user.id != user.id:
+        raise HTTPException(status_code=403, detail="No Permissions.")
+
+    topic = crud.topic.get(db, topic_id)
+
+    if topic is None:
+        raise HTTPException(status_code=404)
+
+    raw_topics = crud.project.get_topics(db_obj=project)
+
+    if topic not in raw_topics:
+        raise HTTPException(status_code=400)
+
+    crud.project.delete_topic(db, db_obj=project, topic=topic)
+
+    topics = [
+        api_schemas.Topic(**jsonable_encoder(t)) for t in crud.project.get_topics(db_obj=project)
+    ]
+
+    return api_schemas.Project(
+        **jsonable_encoder(project),
+        host_username=project.user.username,
+        host_user_avatar_url=project.user.avatar_url,
+        topic=topics,
+    )

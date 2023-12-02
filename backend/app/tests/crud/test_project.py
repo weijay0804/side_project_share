@@ -81,6 +81,33 @@ def test_add_topic(db: Session) -> None:
     assert topic in topics
 
 
+def test_delete_topic(db: Session) -> None:
+    user_in = create_random_user_db_create_obj()
+    user = crud.user.create(db, obj_in=user_in)
+
+    project_in = create_random_project_db_create_obj()
+    project = crud.project.create(db, obj_in=project_in, user=user)
+
+    topic_in = TopicDBCreate(name=utils.fake_data.random_string())
+    topic = crud.topic.create(db, obj_in=topic_in)
+
+    project.topics.append(topic)
+    db.commit()
+    db.refresh(project)
+
+    raw_topics = project.topics
+
+    assert len(raw_topics) == 1
+    assert topic in raw_topics
+
+    crud.project.delete_topic(db, db_obj=project, topic=topic)
+
+    topics = project.topics
+
+    assert len(topics) == 0
+    assert topic not in topics
+
+
 def test_get_topics(db: Session) -> None:
     user_in = create_random_user_db_create_obj()
     user = crud.user.create(db, obj_in=user_in)

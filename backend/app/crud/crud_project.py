@@ -57,6 +57,11 @@ class CRUDProject(CRUDBase[Project, ProjectDBCreate, ProjectDBUpdate]):
         db.commit()
         db.refresh(db_obj)
 
+    def delete_topic(self, db: Session, *, db_obj: Project, topic: Topic) -> None:
+        db_obj.topics.remove(topic)
+        db.commit()
+        db.refresh(db_obj)
+
     def get_topics(self, *, db_obj: Project) -> List[Topic]:
         topics = db_obj.topics
 
